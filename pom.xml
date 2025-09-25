@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>net.adambruce</groupId>
+    <artifactId>jsonpath-playground</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <javafx.version>25</javafx.version>
+        <atlantafx.version>2.1.0</atlantafx.version>
+        <json-path.version>2.9.0</json-path.version>
+        <jackson-databind.version>2.20.0</jackson-databind.version>
+        <ikonli.version>12.4.0</ikonli.version>
+        <json-smart.version>2.5.2</json-smart.version>
+        <slf4j-nop.version>2.0.17</slf4j-nop.version>
+
+        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+        <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+        <maven-dependency-plugin.version>3.8.1</maven-dependency-plugin.version>
+        <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
+        <moditect-maven-plugin.version>1.4.0-SNAPSHOT</moditect-maven-plugin.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.mkpaz</groupId>
+            <artifactId>atlantafx-base</artifactId>
+            <version>${atlantafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>${json-path.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.minidev</groupId>
+                    <artifactId>json-smart</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>${json-smart.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-databind.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-javafx</artifactId>
+            <version>${ikonli.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-fontawesome6-pack</artifactId>
+            <version>${ikonli.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>${slf4j-nop.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--
+                Copy all JARs into the modules directory.
+                Exclude non-modular JARs, we will patch them later to make them modular
+             -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${maven-dependency-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <excludeArtifactIds>
+                                json-path,json-smart,accessors-smart
+                            </excludeArtifactIds>
+                            <outputDirectory>${project.build.directory}/modules</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+                Configure the main class in the JAR.
+                moditect refuses to accept a main class if it isn't set in the manifest
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>net.adambruce.Launcher</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <!-- Tell the compiler plugin to use modules from modules directory -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <release>25</release>
+                    <compilerArgs>
+                        <compilerArg>--module-path</compilerArg>
+                        <compilerArg>${project.build.directory}/modules</compilerArg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.moditect</groupId>
+                <artifactId>moditect-maven-plugin</artifactId>
+                <version>${moditect-maven-plugin.version}</version>
+                <executions>
+                    <!-- Patch module-info.java files so jlink can determine dependencies. -->
+                    <execution>
+                        <id>add-module-infos</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>add-module-info</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/modules</outputDirectory>
+                            <modules>
+                                <module>
+                                    <artifact>
+                                        <groupId>com.jayway.jsonpath</groupId>
+                                        <artifactId>json-path</artifactId>
+                                        <version>${json-path.version}</version>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module json.path {
+                                            requires net.minidev.json.smart;
+                                            requires org.slf4j;
+
+                                            exports com.jayway.jsonpath;
+                                            exports com.jayway.jsonpath.internal.filter;
+                                            exports com.jayway.jsonpath.internal.function.json;
+                                            exports com.jayway.jsonpath.internal.function.latebinding;
+                                            exports com.jayway.jsonpath.internal.function.numeric;
+                                            exports com.jayway.jsonpath.internal.function.sequence;
+                                            exports com.jayway.jsonpath.internal.function.text;
+                                            exports com.jayway.jsonpath.internal.path;
+                                            exports com.jayway.jsonpath.spi.cache;
+                                            exports com.jayway.jsonpath.spi.json;
+                                            exports com.jayway.jsonpath.spi.mapper;
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+                                <module>
+                                    <artifact>
+                                        <groupId>net.minidev</groupId>
+                                        <artifactId>json-smart</artifactId>
+                                        <version>${json-smart.version}</version>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module net.minidev.json.smart {
+                                            requires net.minidev.accessors.smart;
+
+                                            exports net.minidev.json;
+                                            exports net.minidev.json.annotate;
+                                            exports net.minidev.json.parser;
+                                            exports net.minidev.json.reader;
+                                            exports net.minidev.json.writer;
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+                                <module>
+                                    <artifact>
+                                        <groupId>net.minidev</groupId>
+                                        <artifactId>accessors-smart</artifactId>
+                                        <version>${json-smart.version}</version>
+                                    </artifact>
+                                    <moduleInfoSource>
+                                        module net.minidev.accessors.smart {
+                                            requires org.objectweb.asm;
+
+                                            exports net.minidev.asm;
+                                            exports net.minidev.asm.ex;
+                                        }
+                                    </moduleInfoSource>
+                                </module>
+                            </modules>
+                        </configuration>
+                    </execution>
+
+                     <!-- Generate jlink image. -->
+                    <execution>
+                        <id>create-runtime-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>create-runtime-image</goal>
+                        </goals>
+                        <configuration>
+                            <addOptions>
+                                <addOption>--enable-native-access=javafx.graphics</addOption>
+                            </addOptions>
+                            <modulePath>
+                                <path>${project.build.directory}/modules</path>
+                                <path>${project.build.directory}/${project.artifactId}-${project.version}.jar</path>
+                            </modulePath>
+                            <modules>
+                                <module>jsonpath.playground</module>
+                                <module>org.kordamp.ikonli.fontawesome6</module>
+                                <module>org.slf4j.nop</module>
+                            </modules>
+                            <jarInclusionPolicy>APP_WITH_DEPENDENCIES</jarInclusionPolicy>
+                            <launcher>
+                                <name>playground</name>
+                                <module>jsonpath.playground</module>
+                                <mainClass>net.adambruce.Launcher</mainClass>
+                            </launcher>
+                            <outputDirectory>${project.build.directory}/jlink-image</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${maven-antrun-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>
+                            package
+                        </phase>
+                        <configuration>
+                            <target>
+                                <zip destfile="${project.build.directory}/packaged/jsonpath-playground.zip"
+                                     basedir="${project.build.directory}/jlink-image/"/>
+                                <tar destfile="${project.build.directory}/packaged/jsonpath-playground.tar.gz"
+                                     compression="gzip">
+                                    <zipfileset src="${project.build.directory}/packaged/jsonpath-playground.zip"/>
+                                </tar>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

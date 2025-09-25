@@ -1,0 +1,121 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-linux-x86_64:
+    name: Build and bundle Linux x86_64 image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove tag prefix
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '25'
+          architecture: 'x64'
+      - name: Set pom.xml version for this release
+        run: mvn -B versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
+      - name: Build image and package
+        run: mvn -B clean package
+      - uses: actions/upload-artifact@4
+        with:
+          name: jsonpath-playground-linux-x86_64.tar.gz
+          path: target/packaged/jsonpath-playground.tar.gz
+
+  build-windows-x86_64:
+    name: Build and bundle Windows x86_64 image
+    runs-on: windows-latest
+    steps:
+      - name: Remove tag prefix
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '25'
+          architecture: 'x64'
+      - name: Set pom.xml version for this release
+        run: mvn -B versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
+      - name: Build image and package
+        run: mvn -B clean package
+      - uses: actions/upload-artifact@4
+        with:
+          name: jsonpath-playground-windows-x86_64.zip
+          path: target/packaged/jsonpath-playground.zip
+
+  build-macos-aarch64:
+    name: Build and bundle MacOS aarch64 image
+    runs-on: macos-latest
+    steps:
+      - name: Remove tag prefix
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '25'
+          architecture: 'x64'
+      - name: Set pom.xml version for this release
+        run: mvn -B versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
+      - name: Build image and package
+        run: mvn -B clean package
+      - uses: actions/upload-artifact@4
+        with:
+          name: jsonpath-playground-macos-aarch64.tar.gz
+          path: target/packaged/jsonpath-playground.tar.gz
+
+  create-release:
+    name: Create release
+    runs-on: ubuntu-latest
+    needs: ["build-linux-x86_64", "build-windows-x86_64", "build-macos-aarch64"]
+    steps:
+      - name: Remove tag prefix
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - uses: actions/download-artifact@v5
+      - uses: softprops/action-gh-release@v2
+        with:
+          body: "Release $VERSION"
+          repository: cafec0c0/jsonpath-playground
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            jsonpath-playground-linux-x86_64.tar.gz
+            jsonpath-playground-windows-x86_64.zip
+            jsonpath-playground-macos-aarch64.tar.gz
+
+  bump-pom-version-snapshot:
+    name: Bump POMs for snapshot
+    runs-on: ubuntu-latest
+    needs: create-release
+    steps:
+      - name: Remove tag prefix
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - uses: actions/checkout@v4
+        with:
+          ssh-key: ${{ secrets.BYPASS_KEY }}
+      - name: Set pom.xml version for this release
+        run: mvn -B versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
+      - name: Set pom.xml snapshot version
+        run: mvn -B versions:set -DnextSnapshot=true -DgenerateBackupPoms=false
+      - uses: EndBug/add-and-commit@v9
+        with:
+          message: Bump POM versions for snapshot
+          new_branch: main
+          push: true

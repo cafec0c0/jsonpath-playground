@@ -27,7 +27,7 @@ jobs:
         run: mvn -B versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
       - name: Build image and package
         run: mvn -B clean package
-      - uses: actions/upload-artifact@4
+      - uses: actions/upload-artifact@v4
         with:
           name: jsonpath-playground-linux-x86_64.tar.gz
           path: target/packaged/jsonpath-playground.tar.gz
@@ -50,7 +50,7 @@ jobs:
         run: mvn -B versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
       - name: Build image and package
         run: mvn -B clean package
-      - uses: actions/upload-artifact@4
+      - uses: actions/upload-artifact@v4
         with:
           name: jsonpath-playground-windows-x86_64.zip
           path: target/packaged/jsonpath-playground.zip
@@ -73,7 +73,7 @@ jobs:
         run: mvn -B versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
       - name: Build image and package
         run: mvn -B clean package
-      - uses: actions/upload-artifact@4
+      - uses: actions/upload-artifact@v4
         with:
           name: jsonpath-playground-macos-aarch64.tar.gz
           path: target/packaged/jsonpath-playground.tar.gz

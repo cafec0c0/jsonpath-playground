@@ -267,6 +267,7 @@
                             package
                         </phase>
                         <configuration>
+                            <skip>${skipCompress}</skip>
                             <target>
                                 <zip destfile="${project.build.directory}/packaged/jsonpath-playground.zip"
                                      basedir="${project.build.directory}/jlink-image/"/>

@@ -29,11 +29,11 @@ jobs:
       - name: Set pom.xml version for this release
         run: mvn -B versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
       - name: Build image and package
-        run: mvn -B clean package -DskipCompress
+        run: mvn -B clean package
       - uses: actions/upload-artifact@v4
         with:
-          name: jsonpath-playground-linux-x86_64
-          path: target/jlink-image/
+          name: jsonpath-playground-linux-x86_64.zip
+          path: target/packaged/jsonpath-playground.zip
 
   build-windows-x86_64:
     name: Build and bundle Windows x86_64 image
@@ -52,11 +52,11 @@ jobs:
       - name: Set pom.xml version for this release
         run: mvn -B versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
       - name: Build image and package
-        run: mvn -B clean package -DskipCompress
+        run: mvn -B clean package
       - uses: actions/upload-artifact@v4
         with:
-          name: jsonpath-playground-windows-x86_64
-          path: target/jlink-image/
+          name: jsonpath-playground-windows-x86_64.zip
+          path: target/packaged/jsonpath-playground.zip
 
   build-macos-aarch64:
     name: Build and bundle MacOS aarch64 image
@@ -75,27 +75,21 @@ jobs:
       - name: Set pom.xml version for this release
         run: mvn -B versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
       - name: Build image and package
-        run: mvn -B clean package -DskipCompress
+        run: mvn -B clean package
       - uses: actions/upload-artifact@v4
         with:
-          name: jsonpath-playground-macos-aarch64
-          path: target/jlink-image/
+          name: jsonpath-playground-macos-aarch64.zip
+          path: target/packaged/jsonpath-playground.zip
 
   create-release:
     name: Create release
     runs-on: ubuntu-latest
     needs: ["build-linux-x86_64", "build-windows-x86_64", "build-macos-aarch64"]
     steps:
-      - name: Remove tag prefix
-        run: |
-          VERSION=${GITHUB_REF_NAME#v}
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
       - uses: actions/download-artifact@v5
-      - run: ls
-      - run: ls *
       - uses: softprops/action-gh-release@v2
         with:
-          body: Release $VERSION
+          generate_release_notes: true
           repository: cafec0c0/jsonpath-playground
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |

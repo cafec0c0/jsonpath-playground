@@ -91,15 +91,17 @@ jobs:
           VERSION=${GITHUB_REF_NAME#v}
           echo "VERSION=$VERSION" >> $GITHUB_ENV
       - uses: actions/download-artifact@v5
+      - run: ls
+      - run: ls *
       - uses: softprops/action-gh-release@v2
         with:
-          body: "Release $VERSION"
+          body: Release $VERSION
           repository: cafec0c0/jsonpath-playground
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            jsonpath-playground-linux-x86_64
-            jsonpath-playground-windows-x86_64
-            jsonpath-playground-macos-aarch64
+            jsonpath-playground-linux-x86_64.zip
+            jsonpath-playground-windows-x86_64.zip
+            jsonpath-playground-macos-aarch64.zip
 
   bump-pom-version-snapshot:
     name: Bump POMs for snapshot

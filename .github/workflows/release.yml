@@ -93,10 +93,7 @@ jobs:
           generate_release_notes: true
           repository: cafec0c0/jsonpath-playground
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: |
-            jsonpath-playground-linux-x86_64.zip
-            jsonpath-playground-windows-x86_64.zip
-            jsonpath-playground-macos-aarch64.zip
+          files: '*.zip'
 
   bump-pom-version-snapshot:
     name: Bump POMs for snapshot

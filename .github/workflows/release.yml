@@ -8,6 +8,9 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  contents: write
+
 jobs:
   build-linux-x86_64:
     name: Build and bundle Linux x86_64 image
@@ -94,9 +97,9 @@ jobs:
           repository: cafec0c0/jsonpath-playground
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            jsonpath-playground-linux-x86_64.zip
-            jsonpath-playground-windows-x86_64.zip
-            jsonpath-playground-macos-aarch64.zip
+            jsonpath-playground-linux-x86_64
+            jsonpath-playground-windows-x86_64
+            jsonpath-playground-macos-aarch64
 
   bump-pom-version-snapshot:
     name: Bump POMs for snapshot

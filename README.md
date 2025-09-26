@@ -6,8 +6,17 @@ An offline, JsonPath playground written with JavaFX and jayway.
 
 ## Running
 To run the pre-built binaries, uncompress the file for your platform and run 
-the launcher script located at `./bin/playground` (MacOS and Linux) or 
-`.\bin\playground.bat` (Windows) 
+the launcher script for your platform:
+
+MacOS and Linux:
+```shell
+./bin/playground
+```
+
+Windows:
+```shell
+.\bin\playground.bat
+```
 
 ## Building
 To build the project and create binaries, run:

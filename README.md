@@ -1,6 +1,6 @@
 # JsonPath Playground
 
-An offline, jsonway playground written with JavaFX.
+An offline, JsonPath playground written with JavaFX and jayway.
 
 ![Dark Mode Screenshot](.github/assets/screenshot-dark.png)
 

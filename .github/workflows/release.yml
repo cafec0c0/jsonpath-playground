@@ -34,6 +34,7 @@ jobs:
         with:
           name: jsonpath-playground-linux-x86_64
           path: target/packaged/jsonpath-playground.zip
+          retention-days: 1
 
   build-windows-x86_64:
     name: Build and bundle Windows x86_64 image
@@ -57,6 +58,7 @@ jobs:
         with:
           name: jsonpath-playground-windows-x86_64
           path: target/packaged/jsonpath-playground.zip
+          retention-days: 1
 
   build-macos-aarch64:
     name: Build and bundle MacOS aarch64 image
@@ -80,6 +82,7 @@ jobs:
         with:
           name: jsonpath-playground-macos-aarch64
           path: target/packaged/jsonpath-playground.zip
+          retention-days: 1
 
   create-release:
     name: Create release

@@ -110,7 +110,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
       - uses: actions/checkout@v4
         with:
-          ssh-key: ${{ secrets.BYPASS_KEY }}
+          ssh-key: ${{ secrets.KEY }}
       - name: Set pom.xml version for this release
         run: mvn -B versions:set -DnewVersion=$VERSION -DgenerateBackupPoms=false
       - name: Set pom.xml snapshot version

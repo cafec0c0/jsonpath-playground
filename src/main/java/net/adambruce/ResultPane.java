@@ -54,9 +54,8 @@ public class ResultPane extends VBox {
         }
 
         try {
-            String pathResult = JsonPath.read(json, path).toString();
-            Object jacksonObject = new ObjectMapper().readValue(pathResult, Object.class);
-            return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(jacksonObject);
+            return new ObjectMapper().writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(JsonPath.read(json, path));
         } catch (Exception ex) {
             isResultError.set(true);
             return ex.getMessage();

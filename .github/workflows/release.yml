@@ -89,9 +89,9 @@ jobs:
       - uses: actions/download-artifact@v5
       - run: ls
       - run: ls *
-      - run: mv jsonpath-playground-linux-x86_64/json-playground.zip jsonpath-playground-linux-x86_64.zip
-      - run: mv jsonpath-playground-windows-x86_64/json-playground.zip jsonpath-playground-windows-x86_64.zip
-      - run: mv jsonpath-playground-macos-aarch64/json-playground.zip jsonpath-playground-macos-aarch64.zip
+      - run: mv jsonpath-playground-linux-x86_64/*.zip jsonpath-playground-linux-x86_64.zip
+      - run: mv jsonpath-playground-windows-x86_64/*.zip jsonpath-playground-windows-x86_64.zip
+      - run: mv jsonpath-playground-macos-aarch64/*.zip jsonpath-playground-macos-aarch64.zip
       - uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true

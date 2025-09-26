@@ -10,13 +10,13 @@ the launcher script located at `./bin/playground` (MacOS and Linux) or
 `.\bin\playground.bat` (Windows) 
 
 ## Building
-To build the project, and create binaries run:
+To build the project and create binaries, run:
 ```shell
 mvn clean package -DskipCompress
 ```
 
 If you want to create `zip` and `tar.gz` archives, remove the `-DskipCompress`
-option:
+option. Archives will be placed in the `target/packaged/` directory.
 ```shell
 mvn clean package
 ```

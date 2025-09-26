@@ -87,13 +87,12 @@ jobs:
     needs: ["build-linux-x86_64", "build-windows-x86_64", "build-macos-aarch64"]
     steps:
       - uses: actions/download-artifact@v5
-      - run: ls -la
       - uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
           repository: cafec0c0/jsonpath-playground
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: '*.zip'
+          files: '**/*.zip'
 
   bump-pom-version-snapshot:
     name: Bump POMs for snapshot
